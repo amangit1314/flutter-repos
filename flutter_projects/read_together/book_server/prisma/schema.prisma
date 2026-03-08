@@ -1,0 +1,143 @@
+generator client {
+    provider        = "prisma-client-js"
+    schema          = "public, auth"
+    previewFeatures = ["fullTextSearch", "multiSchema"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+    schemas  = "public, auth"
+}
+
+model auth {
+    email    String @id @unique
+    uid      String @unique
+    password String
+    username String
+
+    @@map("public.auth")
+    @@schema("public, auth")
+}
+
+model user {
+    uid                String    @id @default(cuid())
+    username           String?
+    email              String    @unique
+    number             String    @unique
+    profileImage       String?
+    createdOrUpdatedAt DateTime  @default(now())
+    addresses          address[]   
+    wishList           String[]  @default([])
+    readList           String[]  @default([])
+    role           String   @default("user")
+
+    @@map("public.user")
+    @@schema("public, auth")
+}
+
+model address {
+    id                 String   @id @default(cuid())
+    uid                String
+    name               String
+    address            String
+    contactNumber      String
+    createdOrUpdatedAt DateTime @default(now())
+    user               user?    @relation(fields: [userUid], references: [uid])
+    userUid            String?
+
+    @@map("public.address")
+    @@schema("public, auth")
+}
+
+model book {
+    id                 String   @id @default(cuid())
+    title              String
+    author             String
+    publisher          String
+    sellerId           String
+    thumbnail          String
+    contents           String 
+    url                String?
+    isbn               String?
+    datetime           DateTime @default(now())
+    price              Int
+    salePrice          Int?
+    status             String @default("available")
+    categories         String[]
+    createdOrUpdatedAt DateTime @default(now())
+
+    @@map("public.book")
+    @@schema("public, auth")
+}
+
+model review {
+    id                 String   @id @default(cuid())
+    uid                String
+    bookId             String
+    title              String
+    reviewComment      String
+    rating             Int
+    createdOrUpdatedAt DateTime @default(now())
+
+    @@map("public.review")
+    @@schema("public, auth")
+}
+
+model payment {
+    id                 String   @id @default(cuid())
+    uid                String
+    bookId             String
+    title              String
+    thumbnail          String
+    quantity           Int
+    price              Int
+    createdOrUpdatedAt DateTime @default(now())
+
+    @@map("public.payment")
+    @@schema("public, auth")
+}
+
+model purchaseHistory {
+    id                 String   @id @default(cuid())
+    uid                String
+    bookId             String
+    title              String
+    thumbnail          String
+    quantity           Int
+    price              Int
+    isFromWishList     Boolean
+    createdOrUpdatedAt DateTime @default(now())
+
+    @@map("public.purchaseHistory")
+    @@schema("public, auth")
+}
+
+model readList {
+    uid   String   @id
+    books String[]
+
+    @@map("public.readList")
+    @@schema("public, auth")
+}
+
+model wishList {
+    uid   String   @id
+    books String[]
+
+    @@map("public.wishList")
+    @@schema("public, auth")
+}
+
+model seller {
+    id                 String   @id @default(cuid())
+    uid                String
+    bookId             String
+    name               String
+    address            String
+    contactNumber      String
+    createdOrUpdatedAt DateTime @default(now())
+
+    @@map("public.seller")
+    @@schema("public, auth")
+}
